@@ -1,0 +1,5 @@
+.venv
+
+# Configurating file for Kubernetes cluster. It will contain sensitive
+# keys and credentials.
+kubectl.cfg
