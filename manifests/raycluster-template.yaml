@@ -1,0 +1,111 @@
+---
+# RayCluster CR template with implementation notes.
+#
+# Project information:
+#   https://docs.ray.io/en/latest/cluster/kubernetes/user-guides/config.html
+#
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  # The name is used as the basis for generated resource names.
+  name: raycluster-template
+  namespace: kuberay
+  labels:
+    app.kubernetes.io/name: kuberay
+    app.kubernetes.io/instance: ray-cluster-template
+    app.kubernetes.io/component: ray-cluster
+    app.kubernetes.io/part-of: kuberay-template
+spec:
+  # Container image versions should match this version
+  rayVersion: "2.9.0"
+  enableInTreeAutoscaling: true
+  autoscalerOptions: {}
+  headGroupSpec:
+    rayStartParams:
+      dashboard-host: 0.0.0.0
+    # How the head nodes services are presented: ClusterIP, NodePort and
+    # LoadBalancer are accepted options.
+    serviceType: ClusterIP
+    template:
+      metadata:
+        annotations: {}
+        labels:
+          app.kubernetes.io/name: kuberay
+          app.kubernetes.io/instance: ray-cluster-template
+          app.kubernetes.io/component: ray-cluster-head
+          app.kubernetes.io/part-of: kuberay-template
+      spec:
+        affinity: {}
+        containers:
+          - image: rayproject/ray:2.9.0
+            imagePullPolicy: IfNotPresent
+            name: ray-head
+            resources:
+              limits:
+                cpu: '1'
+                memory: 2G
+              requests:
+                cpu: '1'
+                memory: 2G
+              # Recommended for all pods to gracefully terminate.
+              lifecycle:
+                preStop:
+                  exec:
+                    command: ["/bin/sh","-c","ray stop"]
+            securityContext: {}
+            volumeMounts:
+              - mountPath: /tmp/ray
+                name: log-volume
+        imagePullSecrets: []
+        nodeSelector: {}
+        tolerations: []
+        volumes:
+          - emptyDir: {}
+            name: log-volume
+  # Multiple worker groups can be defined to provide specific worker resources
+  # related to the node the pod is to be executed on. Worker resources should
+  # match the node hardware they are selected to run on. Running a single pod
+  # on a node is more efficent that multiple smaller nodes.
+  workerGroupSpecs:
+    - groupName: workergroup
+      maxReplicas: 3
+      minReplicas: 1
+      numOfHosts: 1
+      rayStartParams: {}
+      replicas: 2
+      template:
+        metadata:
+          annotations: {}
+          labels:
+            app.kubernetes.io/name: kuberay
+            app.kubernetes.io/instance: ray-cluster-template
+            app.kubernetes.io/component: ray-cluster-head
+            app.kubernetes.io/part-of: kuberay-template
+        spec:
+          affinity: {}
+          containers:
+            - image: rayproject/ray:2.9.0
+              imagePullPolicy: IfNotPresent
+              name: ray-worker
+              resources:
+                limits:
+                  cpu: '2'
+                  memory: 8G
+                requests:
+                  cpu: '2'
+                  memory: 8G
+              # Recommended for all pods to gracefully terminate.
+              lifecycle:
+                preStop:
+                  exec:
+                    command: ["/bin/sh","-c","ray stop"]
+              securityContext: {}
+              volumeMounts:
+                - mountPath: /tmp/ray
+                  name: log-volume
+          imagePullSecrets: []
+          nodeSelector: {}
+          tolerations: []
+          volumes:
+            - emptyDir: {}
+              name: log-volume

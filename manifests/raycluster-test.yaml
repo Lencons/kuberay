@@ -1,0 +1,104 @@
+---
+# Minimal Test RayCluster
+#
+# Will deploy a two worker node cluster with the required resources to support
+# the test workloads within this project using the "--test" option.
+#
+# This is assumed to be deployed into a single node Kubernetes instance and
+# uses NodePort to expose external services.
+#
+apiVersion: ray.io/v1
+kind: RayCluster
+metadata:
+  name: raycluster-test
+  namespace: kuberay
+  labels:
+    app.kubernetes.io/name: kuberay
+    app.kubernetes.io/instance: ray-cluster-test
+    app.kubernetes.io/component: ray-cluster
+    app.kubernetes.io/part-of: kuberay-test
+spec:
+  rayVersion: "2.9.0"
+  enableInTreeAutoscaling: true
+  autoscalerOptions: {}
+  headGroupSpec:
+    rayStartParams:
+      dashboard-host: 0.0.0.0
+    serviceType: NodePort
+    template:
+      metadata:
+        annotations: {}
+        labels:
+          app.kubernetes.io/name: kuberay
+          app.kubernetes.io/instance: ray-cluster-test
+          app.kubernetes.io/component: ray-cluster-head
+          app.kubernetes.io/part-of: kuberay-test
+      spec:
+        affinity: {}
+        containers:
+          - image: rayproject/ray:2.9.0
+            imagePullPolicy: IfNotPresent
+            name: ray-head
+            resources:
+              limits:
+                cpu: '1'
+                memory: 2G
+              requests:
+                cpu: '1'
+                memory: 2G
+              lifecycle:
+                preStop:
+                  exec:
+                    command: ["/bin/sh","-c","ray stop"]
+            securityContext: {}
+            volumeMounts:
+              - mountPath: /tmp/ray
+                name: log-volume
+        imagePullSecrets: []
+        nodeSelector: {}
+        tolerations: []
+        volumes:
+          - emptyDir: {}
+            name: log-volume
+  workerGroupSpecs:
+    - groupName: workergroup
+      maxReplicas: 3
+      minReplicas: 1
+      numOfHosts: 1
+      rayStartParams: {}
+      replicas: 2
+      template:
+        metadata:
+          annotations: {}
+          labels:
+            app.kubernetes.io/name: kuberay
+            app.kubernetes.io/instance: ray-cluster-test
+            app.kubernetes.io/component: ray-cluster-worker
+            app.kubernetes.io/part-of: kuberay-test
+        spec:
+          affinity: {}
+          containers:
+            - image: rayproject/ray:2.9.0
+              imagePullPolicy: IfNotPresent
+              name: ray-worker
+              resources:
+                limits:
+                  cpu: '2'
+                  memory: 8G
+                requests:
+                  cpu: '2'
+                  memory: 8G
+              lifecycle:
+                preStop:
+                  exec:
+                    command: ["/bin/sh","-c","ray stop"]
+              securityContext: {}
+              volumeMounts:
+                - mountPath: /tmp/ray
+                  name: log-volume
+          imagePullSecrets: []
+          nodeSelector: {}
+          tolerations: []
+          volumes:
+            - emptyDir: {}
+              name: log-volume
