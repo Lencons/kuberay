@@ -9,7 +9,7 @@ import ray
 import math
 import timeit
 
-@ray.remote
+@ray.remote(num_cpus=1)
 def sieve_eratosthenes(limit : int) -> dict:
     """Generates a sequence of primes < n.
 
@@ -47,7 +47,7 @@ def sieve_eratosthenes(limit : int) -> dict:
     }
 
 
-@ray.remote
+@ray.remote(num_cpus=1)
 def sieve_sundaram(limit : int) -> dict:
     """Generate prime numbers using the Sieve of Sundaram.
     
@@ -84,7 +84,7 @@ def sieve_sundaram(limit : int) -> dict:
     }
 
 
-@ray.remote
+@ray.remote(num_cpus=1)
 def sieve_atkin(limit : int) -> dict:
     """Generate prime numbers using the Sieve of Atkin.
     
@@ -140,60 +140,104 @@ if __name__ == '__main__':
         prog='primes',
         description='Prime number generator.',
     )
+
+    # Program configuration arguments.
     parser.add_argument(
         '-d', '--dump',
         action='store_true',
         help='dump prime numbers from job'
     )
     parser.add_argument(
-        '-l', '--limit',
+        '-m', '--max',
         type=int,
-        default=500,
+        default=None,
         help='value to search up to for primes (in millions)'
     )
     parser.add_argument(
         '-n', '--num',
         type=int,
-        default=1,
+        default=None,
         help='number of instances of each prime calculator'
     )
+    parser.add_argument(
+        '-r', '--ray',
+        default=None,
+        help='Ray cluster client connection URL',
+    )
 
+    # Environment configuration arguments.
+    parser.add_argument(
+        '--test',
+        action='store_true',
+        help='use settings for test environments'
+    )
 
+    # Processing configuration arguments.
     parser.add_argument(
         '--eratosthenes',
         action='store_true',
+        help='calulate primes using the sieve of Eratosthenes',
     )
     parser.add_argument(
         '--sundaram',
         action='store_true',
+        help='calculate primes using the sieve of Sundaram',
     )
     parser.add_argument(
         '--atkin',
         action='store_true',
+        help='calculate primes using the sieve of Atkin'
     )
     args = parser.parse_args()
 
-    ray.init()
+    if args.ray is None:
+        ray.init()
+    else:
+        print(f'Connecting to remote cluster: {args.ray}')
+        ray.init(args.ray)
 
-    limit = args.limit * 1000000
-    threads = args.num
+    # Set environment based processing parameters
+    if args.test:
+        # Parameters to work with raycluster-test manifests.
+        test_max = 250
+        if args.max is not None:
+            if args.max > test_max:
+                print(f'Setting max prime to test environment limit: {test_max}')
+                args.max = test_max
+        else:
+            args.max = test_max
 
+        # Workers will have two CPU's each, limit one job per worker.
+        #sieve_eratosthenes.options(num_cpus=2)
+        #sieve_sundaram.options(num_cpus=2)
+        #sieve_atkin.options(num_cpus=2)
+
+    # Set default parameters for anything not specificly set
+    if args.max is None : args.max = 500
+    if args.num is None : args.num = 1
+
+    limit = args.max * 1000000
     futures = []
+
+    # Calculate memory requirements for sieves as they are very memory hungry.
+    sieve_eratosthenes.options(memory=limit * 1.1)
+    sieve_sundaram.options(memory=int(limit / 2) * 1.1)
+    sieve_atkin.options(memory=limit * 1.1)
 
     # For the number of requested algorithm instances, run the selected
     # algorithms.
-    for i in range(threads):
+    for i in range(args.num):
         if args.eratosthenes:
             futures.append(sieve_eratosthenes.remote(limit))
         if args.sundaram:
             futures.append(sieve_sundaram.remote(limit))
         if args.atkin:
-            futures.append(sieve_sundaram.remote(limit))
+            futures.append(sieve_atkin.remote(limit))
 
     # If specific algorithms haven't been selected on the command line, run
     # them all.
     if len(futures) == 0:
-        for i in range(threads):
+        for i in range(args.num):
             futures += [
                 sieve_eratosthenes.remote(limit),
                 sieve_sundaram.remote(limit),

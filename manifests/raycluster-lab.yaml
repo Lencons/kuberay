@@ -1,48 +1,44 @@
 ---
-# RayCluster CR template with implementation notes.
+# Lab RayCluster Instance
 #
-# Project information:
-#   https://docs.ray.io/en/latest/cluster/kubernetes/user-guides/config.html
+# Manifest to deploy the general use RayCluster into the Lab RKE2 instance.
+#
+# This cluster is inteneded for testing and development of HPC and AI
+# workloads and is limited to just three nodes with basic CPU and memory
+# resources. For large workloads, the 
 #
 apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
-  # The name is used as the basis for generated resource names.
-  name: raycluster-template
-  namespace: kuberay
+  name: raycluster
+  namespace: lab-cluster
   labels:
     app.kubernetes.io/name: kuberay
-    app.kubernetes.io/instance: ray-cluster-template
+    app.kubernetes.io/instance: ray-cluster
     app.kubernetes.io/component: ray-cluster
-    app.kubernetes.io/part-of: kuberay-template
+    app.kubernetes.io/part-of: kuberay-lab
 spec:
-  # Container image versions should match this version
-  rayVersion: "2.9.0"
-  enableInTreeAutoscaling: true
+  rayVersion: "2.40.0"
+  enableInTreeAutoscaling: false
   autoscalerOptions: {}
   headGroupSpec:
     rayStartParams:
       dashboard-host: 0.0.0.0
-    # How the head nodes services are presented: ClusterIP, NodePort and
-    # LoadBalancer are accepted options.
-    serviceType: ClusterIP
+    serviceType: LoadBalancer
     template:
       metadata:
         annotations: {}
         labels:
           app.kubernetes.io/name: kuberay
-          app.kubernetes.io/instance: ray-cluster-template
+          app.kubernetes.io/instance: ray-cluster
           app.kubernetes.io/component: ray-cluster-head
-          app.kubernetes.io/part-of: kuberay-template
+          app.kubernetes.io/part-of: kuberay-lab
       spec:
         affinity: {}
         containers:
-          - image: rayproject/ray:2.9.0
+          - image: rayproject/ray:2.40.0
             imagePullPolicy: IfNotPresent
             name: ray-head
-            # The head node will also process as a worker so resources must
-            # be that of the workers plus 1 CPU and 2GB memory to run the
-            # head services.
             resources:
               limits:
                 cpu: '4'
@@ -50,7 +46,6 @@ spec:
               requests:
                 cpu: '4'
                 memory: 8G
-              # Recommended for all pods to gracefully terminate.
               lifecycle:
                 preStop:
                   exec:
@@ -65,39 +60,34 @@ spec:
         volumes:
           - emptyDir: {}
             name: log-volume
-  # Multiple worker groups can be defined to provide specific worker resources
-  # related to the node the pod is to be executed on. Worker resources should
-  # match the node hardware they are selected to run on. Running a single pod
-  # on a node is more efficent that multiple smaller nodes.
   workerGroupSpecs:
     - groupName: workergroup
-      maxReplicas: 3
+      maxReplicas: 5
       minReplicas: 1
       numOfHosts: 1
       rayStartParams: {}
-      replicas: 2
+      replicas: 1
       template:
         metadata:
           annotations: {}
           labels:
             app.kubernetes.io/name: kuberay
-            app.kubernetes.io/instance: ray-cluster-template
-            app.kubernetes.io/component: ray-cluster-head
-            app.kubernetes.io/part-of: kuberay-template
+            app.kubernetes.io/instance: ray-cluster
+            app.kubernetes.io/component: ray-cluster-worker
+            app.kubernetes.io/part-of: kuberay-lab
         spec:
           affinity: {}
           containers:
-            - image: rayproject/ray:2.9.0
+            - image: rayproject/ray:2.40.0
               imagePullPolicy: IfNotPresent
               name: ray-worker
               resources:
                 limits:
-                  cpu: '2'
-                  memory: 6G
+                  cpu: '4'
+                  memory: 8G
                 requests:
-                  cpu: '2'
-                  memory: 6G
-              # Recommended for all pods to gracefully terminate.
+                  cpu: '4'
+                  memory: 8G
               lifecycle:
                 preStop:
                   exec:

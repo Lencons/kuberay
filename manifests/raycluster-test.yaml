@@ -18,8 +18,8 @@ metadata:
     app.kubernetes.io/component: ray-cluster
     app.kubernetes.io/part-of: kuberay-test
 spec:
-  rayVersion: "2.9.0"
-  enableInTreeAutoscaling: true
+  rayVersion: "2.40.0"
+  enableInTreeAutoscaling: false
   autoscalerOptions: {}
   headGroupSpec:
     rayStartParams:
@@ -36,16 +36,16 @@ spec:
       spec:
         affinity: {}
         containers:
-          - image: rayproject/ray:2.9.0
+          - image: rayproject/ray:2.40.0
             imagePullPolicy: IfNotPresent
             name: ray-head
             resources:
               limits:
-                cpu: '1'
-                memory: 2G
+                cpu: '2'
+                memory: 6G
               requests:
-                cpu: '1'
-                memory: 2G
+                cpu: '2'
+                memory: 6G
               lifecycle:
                 preStop:
                   exec:
@@ -62,11 +62,11 @@ spec:
             name: log-volume
   workerGroupSpecs:
     - groupName: workergroup
-      maxReplicas: 3
+      maxReplicas: 2
       minReplicas: 1
       numOfHosts: 1
       rayStartParams: {}
-      replicas: 2
+      replicas: 1
       template:
         metadata:
           annotations: {}
@@ -78,16 +78,16 @@ spec:
         spec:
           affinity: {}
           containers:
-            - image: rayproject/ray:2.9.0
+            - image: rayproject/ray:2.40.0
               imagePullPolicy: IfNotPresent
               name: ray-worker
               resources:
                 limits:
                   cpu: '2'
-                  memory: 8G
+                  memory: 4G
                 requests:
                   cpu: '2'
-                  memory: 8G
+                  memory: 4G
               lifecycle:
                 preStop:
                   exec:
