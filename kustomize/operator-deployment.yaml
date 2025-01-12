@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuberay-operator
+  labels:
+    app.kubernetes.io/name: kuberay-operator
+    app.kubernetes.io/instance: kuberay-lab
+    app.kubernetes.io/part-of: kuberay
+spec:
+  replicas: 1
+  strategy:
+    type: Recreate
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kuberay-operator
+      app.kubernetes.io/instance: kuberay-lab
+      app.kubernetes.io/part-of: kuberay
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kuberay-operator
+        app.kubernetes.io/instance: kuberay-lab
+        app.kubernetes.io/component: kuberay-operator
+        app.kubernetes.io/part-of: kuberay
+    spec:
+      containers:
+        - name: kuberay-operator
+          image: quay.io/kuberay/operator:v1.2.2
+          imagePullPolicy: IfNotPresent
+          volumeMounts:
+            - name: kuberay-logs
+              mountPath: /logs
+          command:
+            - /manager
+          args:
+            - '--feature-gates=RayClusterStatusConditions=false'
+            - '--log-file-path /logs/ray-operator.log'
+          ports:
+            - name: http
+              containerPort: 8080
+              protocol: TCP
+          livenessProbe:
+            httpGet:
+              path: /metrics
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 5
+          readinessProbe:
+            httpGet:
+              path: /metrics
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 5
+            failureThreshold: 5
+          resources:
+            limits:
+              cpu: 100m
+              memory: 512Mi
+      # This needs to be updated to persistent storage at some stage.
+      volumes:
+        - name: kuberay-logs
+          emptyDir:
+            sizeLimit: 50Mi

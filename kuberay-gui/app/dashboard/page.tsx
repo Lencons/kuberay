@@ -2,7 +2,7 @@
 
 import { redirect, useSearchParams } from 'next/navigation';
 import Clusters from '@/app/ui/dashboard/clusters';
-//import { fetchRayClustersNamespace } from '@/app/lib/kuberay';
+import { fetchRayClusters } from '@/app/lib/kuberay';
 import { fetchRayClustersNamespaceDummy } from '@/app/lib/kuberay-dummy';
 import { inter } from '@/app/ui/fonts';
 
@@ -15,7 +15,7 @@ export default function Page () {
   if (username === '') redirect('/');
 
   const clusters = fetchRayClustersNamespaceDummy('default');
-  console.log(clusters);
+  console.log(fetchRayClusters(kuberayURL));
   
   return (
     <main>

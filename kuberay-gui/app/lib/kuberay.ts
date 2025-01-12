@@ -3,7 +3,7 @@
  */
 'use client';
 
-import useSWR from 'swr';
+import { useEffect } from 'react';
 
 export type RayCluster = {
     name: string;
@@ -12,13 +12,38 @@ export type RayCluster = {
     version: string;
   };
 
-const fetcher = (arg: any, ...args: any) =>
-        fetch(arg, ...args).then(res => res.json());
+const HEADERS = { headers: { accept: 'application/json'}};
+
+
+export function fetchRayClusters(
+  kuberay_api: string,
+): Array<RayCluster> {
+
+  const url = kuberay_api + '/apis/v1/clusters';
+  console.log(`URL: ${url}`);
+
+  useEffect(() => {
+    fetch(url, {
+      method: 'GET',
+      headers: {
+        'accept': 'application/json',
+      }
+    })
+      .then((res) => res.json())
+  }, []);
+
+  let clusters: RayCluster[] = [];
+
+  return clusters;
+}
+
 
 export function fetchRayClustersNamespace(
+  kuberay_api: string,
   namespace: string,
-): Promise<Array<RayCluster>> {
+): Array<RayCluster> {
   let clusters: RayCluster[] = [];
+
   const { data, error, isLoading } = useSWR('url', fetcher)
 
   if (error) console.log(error);

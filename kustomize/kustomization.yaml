@@ -1,0 +1,7 @@
+namespace: kuberay-operator
+
+resources:
+  - operator-deployment.yaml
+  - operator-service.yaml
+#  - api-server.yaml
+#  - ingress.yaml
