@@ -1,0 +1,48 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kuberay-apiserver
+  labels:
+    app.kubernetes.io/name: kuberay-apiserver
+    app.kubernetes.io/instance: kuberay-lab
+    app.kubernetes.io/part-of: kuberay
+spec:
+  selector:
+    matchLabels:
+      app.kubernetes.io/name: kuberay-apiserver
+      app.kubernetes.io/instance: kuberay-lab
+      app.kubernetes.io/part-of: kuberay
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app.kubernetes.io/name: kuberay-apiserver
+        app.kubernetes.io/instance: kuberay-lab
+        app.kubernetes.io/component: kuberay-apiserver
+        app.kubernetes.io/part-of: kuberay
+    spec:
+      containers:
+        - name: kuberay-apiserver
+          image: quay.io/kuberay/apiserver:v1.2.2
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8888
+              name: http
+              protocol: TCP
+            - containerPort: 8887
+              name: grpc
+              protocol: TCP
+          resources:
+              cpu: 500m
+              memory: 500Mi
+            requests:
+              cpu: 300m
+              memory: 300Mi
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: http
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: http

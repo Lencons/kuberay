@@ -1,0 +1,27 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kuberay-apiserver
+  labels:
+    app.kubernetes.io/name: kuberay-apiserver
+    app.kubernetes.io/instance: kuberay-lab
+    app.kubernetes.io/component: kuberay-apiserver
+    app.kubernetes.io/part-of: kuberay
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: kuberay-api.lab.dunbart.net
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kuberay-apiserver
+                port:
+                  number: 8888
+  # Need to set up HTTPS at some stage.
+#  tls:
+#    - hosts:
+#        - kuberay-api.lab.dunbart.net
+#      secretName: apiserver-cert
