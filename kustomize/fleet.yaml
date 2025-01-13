@@ -1,0 +1,12 @@
+targetCustomizations:
+- name: kuberay-lab
+  defaultNamespace: kuberay-operator
+  clusterSelector:
+    matchLabels:
+      cluster: lab
+  kustomize:
+    dir: .
+
+dependsOn:
+  - selector:
+    bindle: kuberay-crds

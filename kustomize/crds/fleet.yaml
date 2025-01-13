@@ -1,0 +1,11 @@
+labels:
+  bundle: kuberay-crds
+
+targetCustomizations:
+- name: kuberay-lab
+  defaultNamespace: kuberay-operator
+  clusterSelector:
+    matchLabels:
+      cluster: lab
+  kustomize:
+    dir: crds/
