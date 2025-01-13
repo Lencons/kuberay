@@ -10,7 +10,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: kuberay-api.lab.dunbart.net
+    - host: kuberay-api.apps.lab.dunbart.net
       http:
         paths:
           - path: /
@@ -23,5 +23,5 @@ spec:
   # Need to set up HTTPS at some stage.
 #  tls:
 #    - hosts:
-#        - kuberay-api.lab.dunbart.net
+#        - kuberay-api.apps.lab.dunbart.net
 #      secretName: apiserver-cert
