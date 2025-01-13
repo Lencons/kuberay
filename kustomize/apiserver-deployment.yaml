@@ -26,23 +26,29 @@ spec:
           image: quay.io/kuberay/apiserver:v1.2.2
           imagePullPolicy: IfNotPresent
           ports:
-            - containerPort: 8888
-              name: http
+            - name: http
+              containerPort: 8888
               protocol: TCP
-            - containerPort: 8887
-              name: grpc
+            - name: grpc
+              containerPort: 8887
               protocol: TCP
           resources:
-              cpu: 500m
-              memory: 500Mi
-            requests:
+            limits:
               cpu: 300m
               memory: 300Mi
           livenessProbe:
             httpGet:
               path: /healthz
               port: http
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            timeoutSeconds: 1
           readinessProbe:
             httpGet:
               path: /healthz
               port: http
+            periodSeconds: 10
+            successThreshold: 1
+            failureThreshold: 3
+            timeoutSeconds: 1
