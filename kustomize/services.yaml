@@ -39,12 +39,10 @@ spec:
   type: ClusterIP
   ports:
     - name: http
-      nodePort: 31888
       port: 8888
       protocol: TCP
       targetPort: 8988
     - name: rpc
-      nodePort: 31887
       port: 8887
       protocol: TCP
       targetPort: 8987
