@@ -34,8 +34,12 @@ spec:
             - /manager
           args:
             - '--feature-gates=RayClusterStatusConditions=false'
+            - --log-file-encoder
+            - json
             - --log-file-path
             - /logs/ray-operator.log
+            - --log-stdout-encoder
+            - console
           ports:
             - name: http
               containerPort: 8080
