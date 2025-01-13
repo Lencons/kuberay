@@ -41,11 +41,11 @@ spec:
     - name: http
       port: 8888
       protocol: TCP
-      targetPort: 8988
+      targetPort: 8888
     - name: rpc
       port: 8887
       protocol: TCP
-      targetPort: 8987
+      targetPort: 8887
   selector:
     app.kubernetes.io/name: kuberay-apiserver
     app.kubernetes.io/instance: kuberay-lab
