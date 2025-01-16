@@ -1,3 +1,7 @@
+---
+# Deployment of the KubeRay Operator.
+#
+# Deploys into the currently set default Namespace, 
 apiVersion: apps/v1
 kind: Deployment
 metadata:
@@ -62,6 +66,17 @@ spec:
             limits:
               cpu: 100m
               memory: 512Mi
+          securityContext:
+            allowPrivilegeEscalation: false
+            capabilities:
+              drop:
+                - ALL
+            readOnlyRootFilesystem: true
+            runAsNonRoot: true
+            seccompProfile:
+              type: RuntimeDefault
+      serviceAccount: kuberay-operator
+      serviceAccountName: kuberay-operator
       # This needs to be updated to persistent storage at some stage.
       volumes:
         - name: kuberay-logs
