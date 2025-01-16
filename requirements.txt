@@ -1,3 +1,10 @@
+# These package requirements cover the dependencies for all components within
+# this project.
+
 # Ray project libraries
 ray
-ray[client]
+ray[client, data, train]
+
+# Data Science libraries
+pandas
+xgboost

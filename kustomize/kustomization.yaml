@@ -1,6 +1,8 @@
 namespace: kuberay-operator
 
 resources:
+  - roles.yaml
+  - service-accounts.yaml
   - operator-deployment.yaml
   - apiserver-deployment.yaml
   - services.yaml
