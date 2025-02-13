@@ -10,7 +10,7 @@ metadata:
 spec:
   ingressClassName: nginx
   rules:
-    - host: kuberay-api.ray.dunbart.net
+    - host: kuberay-api.ray.lab.dunbart.net
       http:
         paths:
           - path: /
