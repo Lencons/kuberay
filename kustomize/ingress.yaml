@@ -4,13 +4,13 @@ metadata:
   name: kuberay-apiserver
   labels:
     app.kubernetes.io/name: kuberay-apiserver
-    app.kubernetes.io/instance: kuberay-lab
+    app.kubernetes.io/instance: kuberay-ray
     app.kubernetes.io/component: kuberay-apiserver
     app.kubernetes.io/part-of: kuberay
 spec:
   ingressClassName: nginx
   rules:
-    - host: kuberay-api.apps.lab.dunbart.net
+    - host: kuberay-api.ray.dunbart.net
       http:
         paths:
           - path: /

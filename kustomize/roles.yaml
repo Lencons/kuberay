@@ -4,7 +4,7 @@ apiVersion: rbac.authorization.k8s.io/v1
 metadata:
   labels:
     app.kubernetes.io/name: kuberay-operator
-    app.kubernetes.io/instance: kuberay-lab
+    app.kubernetes.io/instance: kuberay-ray
     app.kubernetes.io/part-of: kuberay
   name: kuberay-operator
 rules:

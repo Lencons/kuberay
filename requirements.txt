@@ -5,6 +5,9 @@
 ray
 ray[client, data, train]
 
-# Data Science libraries
+# Data Science libraries.
 pandas
 xgboost
+
+# Enable progres reporting.
+tqdm

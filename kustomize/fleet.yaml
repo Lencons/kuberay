@@ -1,9 +1,9 @@
 targetCustomizations:
-- name: kuberay-lab
+- name: kuberay-ray
   defaultNamespace: kuberay-operator
   clusterSelector:
     matchLabels:
-      cluster: lab
+      cluster: ray
   kustomize:
     dir: .
 

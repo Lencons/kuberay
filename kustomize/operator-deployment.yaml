@@ -8,7 +8,7 @@ metadata:
   name: kuberay-operator
   labels:
     app.kubernetes.io/name: kuberay-operator
-    app.kubernetes.io/instance: kuberay-lab
+    app.kubernetes.io/instance: kuberay-ray
     app.kubernetes.io/part-of: kuberay
 spec:
   replicas: 1
@@ -17,13 +17,13 @@ spec:
   selector:
     matchLabels:
       app.kubernetes.io/name: kuberay-operator
-      app.kubernetes.io/instance: kuberay-lab
+      app.kubernetes.io/instance: kuberay-ray
       app.kubernetes.io/part-of: kuberay
   template:
     metadata:
       labels:
         app.kubernetes.io/name: kuberay-operator
-        app.kubernetes.io/instance: kuberay-lab
+        app.kubernetes.io/instance: kuberay-ray
         app.kubernetes.io/component: kuberay-operator
         app.kubernetes.io/part-of: kuberay
     spec:

@@ -22,33 +22,6 @@ class Predict:
         return {"predictions": self.model.predict(dmatrix)}
 
 
-def load_datasets(
-    filename: str,
-) -> Tuple[Dataset, Dataset, Dataset]:
-    """Load the dataset for training, validataion and testing.
-
-    Parameters
-    ----------
-    filename
-        Name of the file to open with the Ray library.
-
-    Returns
-    -------
-    Dataset
-        Training dataset from the provied filename.
-    Dataset
-        Validataion dataset from the provided filename.
-    Dataset
-        Testing dataset from the provided filename.
-    """
-    dataset = ray.data.read_csv("s3://anonymous@air-example-data/breast_cancer.csv")
-
-    train_dataset, valid_dataset = dataset.train_test_split(test_size=0.3)
-    test_dataset = valid_dataset.drop_columns(["target"])
-
-    return train_dataset, valid_dataset, test_dataset
-
-
 def train_xgboost(
     train_dataset: Dataset,
     valid_dataset: Dataset,
@@ -96,15 +69,20 @@ def train_xgboost(
         metadata = {"preprocessor_pkl": preprocessor.serialize()}
     )
     result = trainer.fit()
-    print(result.metrics)
-
     return result
 
 
 def predict_xgboost(
     result: Result,
     test_dataset: Dataset,
-):
+) -> Dataset:
+    """Run a predition on a dataset.....
+    
+    Parameters
+    ----------
+    result
+
+    """
     scores = test_dataset.map_batches(
         Predict, 
         fn_constructor_args=[result.checkpoint], 
@@ -113,13 +91,16 @@ def predict_xgboost(
     )
     
     predicted_labels = scores.map_batches(lambda df: (df > 0.5).astype(int), batch_format="pandas")
-    print(f"PREDICTED LABELS")
-    predicted_labels.show()
+    return predicted_labels
+
 
 if __name__ == '__main__':
 
+    # Get the Breast Cancer dataset and break it into the training subsets.
+    dataset = ray.data.read_csv("data/breast_cancer.csv")
+    train_dataset, valid_dataset = dataset.train_test_split(test_size=0.3)
+    test_dataset = valid_dataset.drop_columns(["target"])
 
-    train_dataset, valid_dataset, test_dataset = load_datasets()
 
     result = train_xgboost(
         train_dataset,
@@ -127,3 +108,9 @@ if __name__ == '__main__':
         num_workers=2,
         use_gpu=False,
     )
+    print('DONE!!!')
+#    print(result.metrics)
+
+    labels = predict_xgboost(result, test_dataset)
+    print(f"PREDICTED LABELS")
+    labels.show()
