@@ -1,8 +1,20 @@
 ---
-# Minimal Test RayCluster
+# KubeRay Test RayCluster
+#
+# Configuration manifest to deploy a standard KubeRay Cluster into a
+# Kubernetes environment. This manifest requires that the kuberay-operator has
+# already been deployed and all of the KubeRay CRD's are present.
 #
 # Will deploy a two worker node cluster with the required resources to support
 # the test workloads within this project using the "--test" option.
+#
+# A Ray v2.42.1 container is deployed using Python v3.12.8. Remote clients
+# will need to ensure that their local Python version matches exactly for jobs
+# to be submitted to the cluster. When updating this manifest to more recent
+# Ray versions ensure that all of the following value align:
+#   - spec.rayVersion
+#   - spec.headGroupSpec.template.spec.containers.image
+#   - spec.workerGroupSpec.template.spec.containers.image
 #
 # This is assumed to be deployed into a single node Kubernetes instance and
 # uses NodePort to expose external services.
@@ -11,14 +23,14 @@ apiVersion: ray.io/v1
 kind: RayCluster
 metadata:
   name: raycluster-test
-  namespace: kuberay
+  namespace: kuberay-test
   labels:
-    app.kubernetes.io/name: kuberay
+    app.kubernetes.io/name: kuberay-test
     app.kubernetes.io/instance: ray-cluster-test
     app.kubernetes.io/component: ray-cluster
-    app.kubernetes.io/part-of: kuberay-test
+    app.kubernetes.io/part-of: kuberay
 spec:
-  rayVersion: "2.40.0"
+  rayVersion: "2.42.1"
   enableInTreeAutoscaling: false
   autoscalerOptions: {}
   headGroupSpec:
@@ -29,14 +41,14 @@ spec:
       metadata:
         annotations: {}
         labels:
-          app.kubernetes.io/name: kuberay
+          app.kubernetes.io/name: kuberay-test
           app.kubernetes.io/instance: ray-cluster-test
           app.kubernetes.io/component: ray-cluster-head
-          app.kubernetes.io/part-of: kuberay-test
+          app.kubernetes.io/part-of: kuberay
       spec:
         affinity: {}
         containers:
-          - image: rayproject/ray:2.40.0
+          - image: rayproject/ray:2.42.1-py312
             imagePullPolicy: IfNotPresent
             name: ray-head
             resources:
@@ -71,14 +83,14 @@ spec:
         metadata:
           annotations: {}
           labels:
-            app.kubernetes.io/name: kuberay
-            app.kubernetes.io/instance: ray-cluster-test
-            app.kubernetes.io/component: ray-cluster-worker
-            app.kubernetes.io/part-of: kuberay-test
+          app.kubernetes.io/name: kuberay-test
+          app.kubernetes.io/instance: ray-cluster-test
+          app.kubernetes.io/component: ray-cluster-worker
+          app.kubernetes.io/part-of: kuberay
         spec:
           affinity: {}
           containers:
-            - image: rayproject/ray:2.40.0
+            - image: rayproject/ray:2.42.1-py312
               imagePullPolicy: IfNotPresent
               name: ray-worker
               resources:
