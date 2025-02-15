@@ -1,6 +1,6 @@
 # Ray Project
 
-The Ray Project provides a distributed computing system supporting traditional HPC workloads as well a machine learning specific services.
+The Ray Project provides a distributed computing system supporting traditional HPC workloads as well as machine learning specific services.
 
 * Project Documentation: https://docs.ray.io/en/latest/index.html
 
@@ -8,7 +8,7 @@ This project is used for test and validation activies within my Homelab and will
 
 The components provided are:
 
-* **KubeRay Operator Kustomize Configuration** - This Kustomize configuration I use with Ranchr/Fleet to manage a RKE2 instance as a general testing and development environment. This configuraiton has been generated from the Ray Project Helm charts and modified to expose KubeRay services. For a trusted HomeLab environment, the KubeRay Helm charts didn't really work for what I needed and rather than re-work them I simplified it using Kustomize.
+* **KubeRay Operator Kustomize Configuration** - This Kustomize configuration I use with Ranchr/Fleet to manage a RKE2 instance as a general testing and development environment. This configuraiton has been generated from the Ray Project Helm charts and modified to expose KubeRay services. For a trusted HomeLab environment, the KubeRay Helm charts didn't really work for what I needed and rather than re-work them I just created my own Kustomize configuration.
 * **KubeRay Cluster Manifests** - Some YAML manifests to deploy various RayClusters into environments which I use.
 * **KubeRay GUI** - A RayCluster management GUI that interacts with the KubeRay APIServer to give sort of a GPUaaS style portal interface. (NOTE - This is current work in progress as I sort out some KubeRay system issues in my environment)
 * **Workloads** - A collection of Python scripts to kick of Ray jobs and demostrate processing within the RayCluster.
