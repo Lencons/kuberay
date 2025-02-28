@@ -1,3 +1,14 @@
+---
+# KubeRay API Server Ingress
+#
+# THis provides a HTTP ingress using the environments DNS wildcard for the
+# ray.lab.dunbart.net subdomain.
+#
+# CORS Note:
+#   The CORS whilelist for this ingress is completely open. This is fine for
+#   deployment into the KubeRay testing instances within the Lab, but should
+#   not be used for any production workloads.
+#
 apiVersion: networking.k8s.io/v1
 kind: Ingress
 metadata:
@@ -7,6 +18,10 @@ metadata:
     app.kubernetes.io/instance: kuberay-ray
     app.kubernetes.io/component: kuberay-apiserver
     app.kubernetes.io/part-of: kuberay
+  annotations:
+    # Open up CORS for development and testing.
+    nginx.ingress.kubernetes.io/enable-cors: 'true'
+    nginx.ingress.kubernetes.io/cors-allow-origin: '*'
 spec:
   ingressClassName: nginx
   rules:
